@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+#metadata: {{ $fullname := printf "%s-%s" .Release.Name .Chart.Name | trunc 63 | trimSuffix "-" }}
+metadata:
+  name: {{ template "app.fullname" }}
+  namespace:  
+  labels:
+    version: {{ template "app.version" }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "app.fullname" }}
+  replicas: {{ default 1 .Values.replicaCount | int }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "app.fullname" }}
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image }}"
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: {{ .Values.service.internalPort | int }}
+        livenessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.service.internalPort | int }}
+        readinessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.service.internalPort | int }}
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
