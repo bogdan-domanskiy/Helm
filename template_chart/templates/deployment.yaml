@@ -19,67 +19,63 @@ spec:
       labels:
         name: {{ .Values.generalInfo.name | default .Release.Name }}-pod
     spec:
+      affinity:
+        {{- toYaml .Values.deployment.affinity | nindent 10 }}
       # serviceAccountName: {{ .Values.generalInfo.name | default .Release.Name }}-svcan
       # secucityContext:
       #   fsGroup: 472
       #   runAsGroup: 472
       #   runAsUser: 472
+      # restartPolicy: {{ .Values.deployment.restartPolicy | default "Always" }}
       containers:
-        - name: {{ .Values.generalInfo.name | default .Release.Name }}-pod
-          image: "{{ .Values.deployment.imageName }}{{ .Values.deployment.imageTag | default "" }}"
-          # volumeMounts:
-          #   - name: config
-          #     mountPath: "/etc/grafana/grafana.ini"
-          #     subPath: grafana.ini
-          #   - name: storage
-          #     mountPath: "/var/lib/grafana"            
-          ports:
-            - name: web
-              containerPort: 80
-              protocol: TCP
+      - name: {{ .Values.generalInfo.name | default .Release.Name }}-pod
+        image: "{{ .Values.deployment.imageName }}{{ .Values.deployment.imageTag | default "" }}"
+        imagePullPolicy: {{ .Values.deployment.imagePullPolicy | default "IfNotPresent" }}
+        volumeMounts: 
+          {{- toYaml .Values.deployment.volumeMounts | nindent 10}}
+        ports:
+          - name: web
+            containerPort: 80
+            protocol: TCP
 # define all of the ConfigMap's data as container environment variables
-          envFrom:
-            - configMapRef:
-                name: {{ .Values.generalInfo.name }}-configmap
-          # env:
-          #   - name: GF_SECURITY_ADMIN_USER
-          #     valueFrom:
-          #       secretKeyRef:
-          #         name: grafana
-          #         key: admin-user
-          #   - name: GF_SECURITY_ADMIN_PASSWORD
-          #     valueFrom:
-          #       secretKeyRef:
-          #         name: grafana
-          #         key: admin-password
-          # - name: GREETING
-          #   valueFrom:
-          #     configMapKeyRef:
-          #       name: demo-config
-          #       key: greeting
-# This field should be disabled by default
-          livenessProbe:
-            failureThreshold: 10
-            httpGet:
-              path: /
-              port: 80
-            initialDelaySeconds: 60
-            timeoutSeconds: 30
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 80
-          resources:
-            {}
-          # requests:
-          #   memory: "64Mi"
-          #   cpu: "250m"
-          # limits:
-          #   memory: "128Mi"
-          #   cpu: "500m"
-      # volumes:
-      # - name: config
-      #   configMap:
-      #     name: grafana
-      # - name: storage
-      #   emptyDir: {}
+        envFrom:
+          - configMapRef:
+              name: {{ .Values.generalInfo.name }}-configmap
+        # env:
+        #   - name: GF_SECURITY_ADMIN_USER
+        #     valueFrom:
+        #       secretKeyRef:
+        #         name: grafana
+        #         key: admin-user
+        #   - name: GF_SECURITY_ADMIN_PASSWORD
+        #     valueFrom:
+        #       secretKeyRef:
+        #         name: grafana
+        #         key: admin-password
+        # - name: GREETING
+        #   valueFrom:
+        #     configMapKeyRef:
+        #       name: demo-config
+        #       key: greeting
+        livenessProbe:
+          {{- toYaml .Values.deployment.livenessProbe | nindent 10 }}
+        readinessProbe:
+          {{- toYaml .Values.deployment.readinessProbe | nindent 10 }}
+        resources:
+          requests:
+            {{- toYaml .Values.deployment.resources.requests | nindent 12 }}
+          limits:
+            {{- toYaml .Values.deployment.resources.limits | nindent 12 }}
+        # affinity:
+        #   {{- toYaml .Values.deployment.affinity | nindent 10 | quote }}
+      tolerations:
+        {{- toYaml .Values.deployment.tolerations | nindent 8 }}
+      nodeSelector:
+        {{- toYaml .Values.deployment.nodeSelector | nindent 8 }}
+    volumes:
+      {{- toYaml .Values.deployment.volumes | nindent 6 }}
+    # - name: config
+    #   configMap:
+    #     name: grafana
+    # - name: storage
+    #   emptyDir: {}
