@@ -1,34 +1,85 @@
 apiVersion: apps/v1
 kind: Deployment
-#metadata: {{ $fullname := printf "%s-%s" .Release.Name .Chart.Name | trunc 63 | trimSuffix "-" }}
-metadata:
-  name: {{ template "app.fullname" }}
-  namespace:  
+metadata: 
+  name: {{ .Values.generalInfo.name | default .Release.Name }}-deployment
+  namespace: {{ .Values.generalInfo.namespace | default "default" }}
   labels:
-    version: {{ template "app.version" }}
+    version: "{{ .Values.generalInfo.version | default .Chart.Version .Release.Revision }}"
 spec:
+  replicas: {{ .Values.deployment.replicas | default 1 }}
+  revisionHistoryLimit: {{ .Values.deployment.historyLimit | default 10 }}
   selector:
-    matchLabels:
-      app: {{ template "app.fullname" }}
-  replicas: {{ default 1 .Values.replicaCount | int }}
+    matchLabels:  
+      name: {{ .Values.generalInfo.name | default .Release.Name }}-pod
+  strategy:
+  #  type: RollingUpdate (By default)
+    # type: Recreate
   template:
     metadata:
       labels:
-        app: {{ template "app.fullname" }}
+        name: {{ .Values.generalInfo.name | default .Release.Name }}-pod
     spec:
+      # serviceAccountName: {{ .Values.generalInfo.name | default .Release.Name }}-svcan
+      # secucityContext:
+      #   fsGroup: 472
+      #   runAsGroup: 472
+      #   runAsUser: 472
       containers:
-      - name: {{ .Chart.Name }}
-        image: "{{ .Values.image }}"
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: {{ .Values.service.internalPort | int }}
-        livenessProbe:
-          httpGet:
-            path: /
-            port: {{ .Values.service.internalPort | int }}
-        readinessProbe:
-          httpGet:
-            path: /
-            port: {{ .Values.service.internalPort | int }}
-        resources:
-{{ toYaml .Values.resources | indent 10 }}
+        - name: {{ .Values.generalInfo.name | default .Release.Name }}-pod
+          image: "{{ .Values.deployment.imageName }}{{ .Values.deployment.imageTag | default "" }}"
+          # volumeMounts:
+          #   - name: config
+          #     mountPath: "/etc/grafana/grafana.ini"
+          #     subPath: grafana.ini
+          #   - name: storage
+          #     mountPath: "/var/lib/grafana"            
+          ports:
+            - name: web
+              containerPort: 80
+              protocol: TCP
+# define all of the ConfigMap's data as container environment variables
+          envFrom:
+            - configMapRef:
+                name: {{ .Values.generalInfo.name }}-configmap
+          # env:
+          #   - name: GF_SECURITY_ADMIN_USER
+          #     valueFrom:
+          #       secretKeyRef:
+          #         name: grafana
+          #         key: admin-user
+          #   - name: GF_SECURITY_ADMIN_PASSWORD
+          #     valueFrom:
+          #       secretKeyRef:
+          #         name: grafana
+          #         key: admin-password
+          # - name: GREETING
+          #   valueFrom:
+          #     configMapKeyRef:
+          #       name: demo-config
+          #       key: greeting
+# This field should be disabled by default
+          livenessProbe:
+            failureThreshold: 10
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 60
+            timeoutSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+          resources:
+            {}
+          # requests:
+          #   memory: "64Mi"
+          #   cpu: "250m"
+          # limits:
+          #   memory: "128Mi"
+          #   cpu: "500m"
+      # volumes:
+      # - name: config
+      #   configMap:
+      #     name: grafana
+      # - name: storage
+      #   emptyDir: {}

@@ -2,3 +2,25 @@
 #Version: ""
 #replicaCount: 2
 #namespaceOverride: aslkdjasdvc
+
+generalInfo:
+  name: some-application
+  namespace: application-namespace
+
+
+
+deployment:
+  replicas: 2
+  historyLimit: 11
+  imageName: nginx
+  imagerepository: hub.docker.com
+  imageTag: :stable
+
+service:
+  externalPort: 81
+  internalPort: 80
+  type: NodePort
+
+# configmap:
+#   name: {{ .Values.generalInfo.name }}-confmap
+  

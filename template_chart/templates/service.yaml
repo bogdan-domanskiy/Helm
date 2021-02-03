@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.generalInfo.name | default .Release.Name }}-svc
+  namespace: {{ .Values.generalInfo.namespace | default "default" }}
+  labels:
+    name: {{ .Values.generalInfo.name | default .Release.Name }}-api
+spec:
+  selector: 
+    # matchLabels:
+      name: "{{ .Values.generalInfo.name | default .Release.Name }}"
+# What's the best practice of usage service type field? By default is the ClusterIP type
+  # externalName: my.database.example.com
+  type: {{ .Values.service.type }}
+  ports:
+  - name: {{ .Values.generalInfo.name | default .Release.Name }}-svc
+    port: {{ .Values.service.externalPort }}
+    targetPort: {{ .Values.service.internalPort }}
+    protocol: TCP
+    
+    
+#   clusterIP:
+# status:
+#   loadBalancer:
+#     ingress:
+#     - ip: 192.0.2.127

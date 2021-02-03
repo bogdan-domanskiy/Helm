@@ -3,7 +3,7 @@ Create a default fully qualified app name.
 */}}
 {{- define "app.fullname" -}}
   {{- if .Values.Name -}}
-   {{- .Values.Name - }}
+   {{- .Values.Name -}}
   {{- else -}}
     {{- .Release.Name | trunc 63 -}}
   {{- end -}}
