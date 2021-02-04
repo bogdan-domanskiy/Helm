@@ -1,0 +1,38 @@
+{{- if .Values.ingress.enabled -}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: {{ $.Values.generalInfo.name | default $.Release.Name }}-ingress
+  namespace: {{ .Values.generalInfo.namespace | default "default" }}
+  labels:
+    {{- range $key, $val := .Values.generalInfo.labels -}}
+      {{ $key | nindent 4 }}: {{ $val | quote }}
+    {{- end }}
+  annotations:
+    {{- range $key, $value := .Values.ingress.annotations -}}
+      {{ $key | nindent 4 }}: {{ $value | quote }}
+    {{- end }}
+spec:
+  backend:
+    serviceName: {{ $.Values.generalInfo.name | default $.Release.Name }}-svc
+    servicePort: {{ default 80 $.Values.service.externalPort }}
+  rules:
+    {{- range $host := .Values.ingress.hosts }}
+    - host: {{ $host.host }}
+      http:
+        paths:
+        {{- if $host.paths }}
+          {{- toYaml $host.paths | nindent 10 }}
+        {{- else }}
+          - path: "/"
+            # pathType: Prefix
+            backend:
+              serviceName: {{ $.Values.generalInfo.name | default $.Release.Name }}-svc
+              servicePort: {{ default 80 $.Values.service.externalPort }}
+        {{- end }}
+    {{- end }}
+  {{- if .Values.ingress.tls }}
+  tls:
+{{ toYaml .Values.ingress.tls | indent 4 }}
+  {{- end -}}
+{{- end -}}

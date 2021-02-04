@@ -4,21 +4,21 @@ metadata:
   name: {{ .Values.generalInfo.name | default .Release.Name }}-svc
   namespace: {{ .Values.generalInfo.namespace | default "default" }}
   labels:
-    name: {{ .Values.generalInfo.name | default .Release.Name }}-api
+    # name: {{ .Values.generalInfo.name | default .Release.Name }}-api
+    {{- range $key, $val := .Values.generalInfo.labels -}}
+      {{ $key | nindent 4}}: {{ $val | quote }}
+    {{- end }}
 spec:
   selector: 
-    # matchLabels:
-      name: "{{ .Values.generalInfo.name | default .Release.Name }}"
+    name: {{ .Values.generalInfo.name | default .Release.Name }}-pod
 # What's the best practice of usage service type field? By default is the ClusterIP type
   # externalName: my.database.example.com
   type: {{ .Values.service.type }}
   ports:
   - name: {{ .Values.generalInfo.name | default .Release.Name }}-svc
-    port: {{ .Values.service.externalPort }}
+    port: {{ default 80 .Values.service.externalPort }}
     targetPort: {{ .Values.service.internalPort }}
     protocol: TCP
-    
-    
 #   clusterIP:
 # status:
 #   loadBalancer:

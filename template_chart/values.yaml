@@ -6,8 +6,11 @@
 generalInfo:
   name: some-application
   namespace: application-namespace
-
-
+  labels: 
+    app.kubernetes.io/name: some-application
+    app.kubernetes.io/version: v1
+    app.kubernetes.io/env: dev
+    app.kubernetes.io/managed-by: helm
 
 deployment:
   replicas: 2
@@ -46,6 +49,28 @@ service:
   externalPort: 81
   internalPort: 80
   type: NodePort
+
+ingress: 
+  enabled: true
+  path: /page1
+  hosts: 
+    - host: example.local
+      paths: []
+          # path: /page1
+          # backend:
+          #   service:
+          #     name: some-application-svc
+          #     port:
+          #       name: http
+          #       number: 81
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    app.kubernetes.io/service-name: some-getaway
+    app.kubernetes.io/version: v1
+    app.kubernetes.io/env: dev
+    app.kubernetes.io/managed-by: azure
+  tls: []
+
 
 # configmap:
 #   name: {{ .Values.generalInfo.name }}-confmap

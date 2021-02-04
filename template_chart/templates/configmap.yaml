@@ -3,6 +3,10 @@ apiVersion: v1
 metadata:
   name: {{ .Values.generalInfo.name }}-configmap
   namespace: {{ .Values.generalInfo.namespace | default "default" }}
+  labels:
+    {{- range $key, $val := .Values.generalInfo.labels -}}
+      {{ $key | nindent 4 }}: {{ $val | quote }}
+    {{- end }}
 data:
   log_level: INFO
   build_mode: Debug
