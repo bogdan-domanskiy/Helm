@@ -17,7 +17,7 @@ spec:
   ports:
   - name: {{ .Values.generalInfo.name | default .Release.Name }}-svc
     port: {{ default 80 .Values.service.externalPort }}
-    targetPort: {{ .Values.service.internalPort }}
+    targetPort: {{ .Values.deployment.containerPort | default "80" }}
     protocol: TCP
 #   clusterIP:
 # status:

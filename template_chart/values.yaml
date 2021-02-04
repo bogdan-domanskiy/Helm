@@ -16,8 +16,9 @@ deployment:
   replicas: 2
   historyLimit: 11
   imageName: nginx
-  imagerepository: docker.io/
-  imageTag: :stable
+  imagerepository: docker.io
+  imageTag: stable
+  containerPort: 8080
   affinity: {}
   tolerations: []
   nodeSelector: {}

@@ -34,13 +34,13 @@ spec:
       # restartPolicy: {{ .Values.deployment.restartPolicy | default "Always" }}
       containers:
       - name: {{ .Values.generalInfo.name | default .Release.Name }}-pod
-        image: {{ .Values.deployment.imageName }}{{ .Values.deployment.imageTag | default "" }}
+        image: {{ ( include "deploy.image-name" .) | quote }}
         imagePullPolicy: {{ .Values.deployment.imagePullPolicy | default "IfNotPresent" }}
         volumeMounts: 
           {{- toYaml .Values.deployment.volumeMounts | nindent 10}}
         ports:
           - name: web
-            containerPort: 80
+            containerPort: {{ .Values.deployment.containerPort | default "80" }}
             protocol: TCP
 # define all of the ConfigMap's data as container environment variables
         envFrom:

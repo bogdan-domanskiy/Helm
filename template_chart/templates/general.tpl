@@ -10,6 +10,23 @@ Create a default fully qualified app name.
 {{- end -}}
 
 
+{{- define "deploy.image-and-repo" }}
+  {{- if .Values.deployment.imagerepository -}}
+    {{ .Values.deployment.imagerepository}}/{{.Values.deployment.imageName }}
+  {{- else -}}
+    {{ .Values.deployment.imageName }}
+  {{- end -}}
+{{- end -}}
+
+{{- define "deploy.image-name" }}
+  {{- if .Values.deployment.imageTag -}}
+    {{ (include "deploy.image-and-repo" .)}}:{{.Values.deployment.imageTag }}
+  {{- else -}}
+    {{ (include "deploy.image-and-repo" .) }}
+  {{- end -}}
+{{- end -}}
+
+
 {{/*
 Set a default version of app.
 */}}
