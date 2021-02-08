@@ -1,4 +1,5 @@
 {{- if .Values.ingress.enabled -}}
+{{ $ports := .Values.service.ports }}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -13,24 +14,34 @@ metadata:
       {{ $key | nindent 4 }}: {{ $value | quote }}
     {{- end }}
 spec:
-  backend:
-    serviceName: {{ $.Values.generalInfo.name | default $.Release.Name }}-svc
-    servicePort: {{ default 80 $.Values.service.externalPort }}
+  # backend:
+  #   serviceName: {{ $.Values.generalInfo.name | default $.Release.Name }}-svc
+  #   servicePort: {{ default 80 $.Values.service.externalPort }}
   rules:
     {{- range $host := .Values.ingress.hosts }}
     - host: {{ $host.host }}
       http:
         paths:
         {{- if $host.paths }}
-          {{- toYaml $host.paths | nindent 10 }}
+          {{- range $host.paths }}
+          - path: {{ .path }}
+            backend:
+              service:
+                name: {{ $.Values.generalInfo.name | default $.Release.Name }}-svc
+                port:
+                  name: {{ .backend.service.port.name }}
+                  number: {{ .backend.service.port.number }}
+          {{- end }}
         {{- else }}
+          {{- range $ports }}
           - path: "/"
-            # pathType: Prefix
             backend:
               serviceName: {{ $.Values.generalInfo.name | default $.Release.Name }}-svc
-              servicePort: {{ default 80 $.Values.service.externalPort }}
+              servicePort: {{ .port }}
+          {{- end }}
         {{- end }}
     {{- end }}
+
   {{- if .Values.ingress.tls }}
   tls:
 {{ toYaml .Values.ingress.tls | indent 4 }}

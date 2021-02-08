@@ -7,7 +7,6 @@ metadata:
     {{- range $key, $val := .Values.generalInfo.labels -}}
       {{- $key | nindent 4 }}: {{ $val | quote }}
     {{- end }}
-    # version: "{{ .Values.generalInfo.version | default .Chart.Version .Release.Revision }}"
 spec:
   replicas: {{ .Values.deployment.replicas | default 1 }}
   revisionHistoryLimit: {{ .Values.deployment.historyLimit | default 10 }}
@@ -26,12 +25,6 @@ spec:
     spec:
       affinity:
         {{- toYaml .Values.deployment.affinity | nindent 10 }}
-      # serviceAccountName: {{ .Values.generalInfo.name | default .Release.Name }}-svcan
-      # secucityContext:
-      #   fsGroup: 472
-      #   runAsGroup: 472
-      #   runAsUser: 472
-      # restartPolicy: {{ .Values.deployment.restartPolicy | default "Always" }}
       containers:
       - name: {{ .Values.generalInfo.name | default .Release.Name }}-pod
         image: {{ ( include "deploy.image-name" .) | quote }}
@@ -43,9 +36,9 @@ spec:
             containerPort: {{ .Values.deployment.containerPort | default "80" }}
             protocol: TCP
 # define all of the ConfigMap's data as container environment variables
-        envFrom:
-          - configMapRef:
-              name: {{ .Values.generalInfo.name }}-configmap
+        # envFrom:
+        #   - configMapRef:
+        #       name: {{ .Values.generalInfo.name }}-configmap
         # env:
         #   - name: GF_SECURITY_ADMIN_USER
         #     valueFrom:
@@ -53,7 +46,7 @@ spec:
         #         name: grafana
         #         key: admin-user
         #   - name: GF_SECURITY_ADMIN_PASSWORD
-        #     valueFrom:
+        #     valueFrom:s
         #       secretKeyRef:
         #         name: grafana
         #         key: admin-password
@@ -71,14 +64,14 @@ spec:
             {{- toYaml .Values.deployment.resources.requests | nindent 12 }}
           limits:
             {{- toYaml .Values.deployment.resources.limits | nindent 12 }}
-        # affinity:
-        #   {{- toYaml .Values.deployment.affinity | nindent 10 | quote }}
       tolerations:
         {{- toYaml .Values.deployment.tolerations | nindent 8 }}
       nodeSelector:
         {{- toYaml .Values.deployment.nodeSelector | nindent 8 }}
-    volumes:
-      {{- toYaml .Values.deployment.volumes | nindent 6 }}
+      volumes:
+        - name: test-volume
+          configMap:
+            name: {{ .Values.generalInfo.name }}-configmap
     # - name: config
     #   configMap:
     #     name: grafana

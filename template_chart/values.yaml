@@ -47,23 +47,39 @@ deployment:
 
 
 service:
-  externalPort: 81
-  internalPort: 80
   type: NodePort
+  ports:
+    - name: some-application-1
+      port: 83
+      targetPort: 80
+      protocol: TCP
+    - name: some-application-2
+      port: 84
+      targetPort: 80
+      protocol: TCP
+
 
 ingress: 
   enabled: true
   path: /page1
   hosts: 
     - host: example.local
-      paths: []
-          # path: /page1
-          # backend:
-          #   service:
-          #     name: some-application-svc
-          #     port:
-          #       name: http
-          #       number: 81
+      # paths: 
+      #   - path: /page1
+      #     backend:
+      #       service:
+      #         name: some-application-1
+      #         port:
+      #           name: http
+      #           number: 83
+      #   - path: /page2
+      #     backend:
+      #       service:
+      #         name: some-application-2
+      #         port:
+      #           name: http
+      #           number: 84
+
   annotations:
     kubernetes.io/ingress.class: nginx
     app.kubernetes.io/service-name: some-getaway
@@ -73,6 +89,21 @@ ingress:
   tls: []
 
 
-# configmap:
-#   name: {{ .Values.generalInfo.name }}-confmap
+configmap:
+  name: some-application-configmap
+  pathtofile: dev-appsettings.json
+  # data: |-
+  #     {
+  #       "ConnectionStrings": {
+  #         "VbsDb": "Server=some-cascasaconnection-string"
+  #       },
+  #       "Logging": {
+  #         "LogLevel": {
+  #           "Default": "Information",
+  #           "Microsoft": "Warning",
+  #           "Microsoft.Hosting.Lifetime": "Information"
+  #         }
+  #       },
+  #       "AllowedHosts": "*"
+  #     }
   

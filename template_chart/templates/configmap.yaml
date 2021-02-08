@@ -7,6 +7,24 @@ metadata:
     {{- range $key, $val := .Values.generalInfo.labels -}}
       {{ $key | nindent 4 }}: {{ $val | quote }}
     {{- end }}
-data:
-  log_level: INFO
-  build_mode: Debug
+data: 
+  appsettings.json: {{ .Files.Get .Values.configmap.pathtofile | printf "%s" | nindent 4 }}
+
+    # appsettings.json: |-
+    #   {
+    #     "ConnectionStrings": {
+    #       "VbsDb": "Server=some-connection-string"
+    #     },
+    #     "Logging": {
+    #       "LogLevel": {
+    #         "Default": "Information",
+    #         "Microsoft": "Warning",
+    #         "Microsoft.Hosting.Lifetime": "Information"
+    #       }
+    #     },
+    #     "AllowedHosts": "*"
+    #   }
+
+
+#   log_level: INFO
+#   build_mode: Debug
