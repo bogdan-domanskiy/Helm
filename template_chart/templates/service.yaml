@@ -1,11 +1,10 @@
-{{ $ports := .Values.service.ports}}
+{{ $ports := .Values.service.ports }}
 apiVersion: v1
 kind: Service
 metadata:
   name: {{ .Values.generalInfo.name | default .Release.Name }}-svc
   namespace: {{ .Values.generalInfo.namespace | default "default" }}
   labels:
-    # name: {{ .Values.generalInfo.name | default .Release.Name }}-api
     {{- range $key, $val := .Values.generalInfo.labels -}}
       {{ $key | nindent 4}}: {{ $val | quote }}
     {{- end }}
@@ -25,10 +24,11 @@ spec:
     {{- end}}
   {{- else }}
     - name: {{ $.Values.generalInfo.name | default $.Release.Name }}-svc
-      port: 80
+      port: {{ $.Values.service.externalPort | default "80" }}
       targetPort: {{ $.Values.deployment.containerPort | default "80" }}
       protocol: TCP
   {{- end }}
+
 #   clusterIP:
 # status:
 #   loadBalancer:

@@ -1,3 +1,4 @@
+{{ $ports := .Values.service.ports }}
 apiVersion: apps/v1
 kind: Deployment
 metadata: 
@@ -32,9 +33,17 @@ spec:
         volumeMounts: 
           {{- toYaml .Values.deployment.volumeMounts | nindent 10}}
         ports:
-          - name: web
+        {{- if $ports }}
+          {{- range $ports }}
+          - name: {{ .name }}
+            containerPort: {{ .targetPort }}
+            protocol: {{ .protocol }}
+          {{- end }}
+        {{- else }}
+          - name: http
             containerPort: {{ .Values.deployment.containerPort | default "80" }}
             protocol: TCP
+        {{- end }}
 # define all of the ConfigMap's data as container environment variables
         # envFrom:
         #   - configMapRef:

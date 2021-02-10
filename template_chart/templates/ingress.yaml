@@ -1,5 +1,6 @@
-{{- if .Values.ingress.enabled -}}
+{{- if eq ( .Values.ingressenabled | default "false" ) "true" }}
 {{ $ports := .Values.service.ports }}
+{{ $host := .Values.ingress.hosts }}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
@@ -14,11 +15,9 @@ metadata:
       {{ $key | nindent 4 }}: {{ $value | quote }}
     {{- end }}
 spec:
-  # backend:
-  #   serviceName: {{ $.Values.generalInfo.name | default $.Release.Name }}-svc
-  #   servicePort: {{ default 80 $.Values.service.externalPort }}
   rules:
-    {{- range $host := .Values.ingress.hosts }}
+  {{- if $host -}}
+    {{- range $host }}
     - host: {{ $host.host }}
       http:
         paths:
@@ -32,18 +31,42 @@ spec:
                   name: {{ .backend.service.port.name }}
                   number: {{ .backend.service.port.number }}
           {{- end }}
-        {{- else }}
+        {{- else if $ports -}}
           {{- range $ports }}
           - path: "/"
             backend:
               serviceName: {{ $.Values.generalInfo.name | default $.Release.Name }}-svc
               servicePort: {{ .port }}
           {{- end }}
+        {{- else }}
+          - path: "/"
+            backend:
+              serviceName: {{ $.Values.generalInfo.name | default $.Release.Name }}-svc
+              servicePort: {{ $.Values.service.externalPort | default "80" }}
         {{- end }}
     {{- end }}
-
+  {{- else if $.Values.ingress.domain }}
+    - host: {{ $.Values.ingress.domain }}
+      http:
+        paths:
+        {{- if $ports }}
+          {{- range $ports }}
+          - path: "/"
+            backend:
+              serviceName: {{ $.Values.generalInfo.name | default $.Release.Name }}-svc
+              servicePort: {{ .port }}
+          {{- end }}
+        {{- else }}
+          - path: "/"
+            backend:
+              serviceName: {{ $.Values.generalInfo.name | default $.Release.Name }}-svc
+              servicePort: {{ $.Values.service.externalPort | default "80" }}
+        {{- end }}
+  {{- else }}
+    fail "Ingress is enabled but you didn't put in a value for the host field. Please set the .ingress.domain or .ingress.hosts[]."
+  {{- end }}
   {{- if .Values.ingress.tls }}
   tls:
-{{ toYaml .Values.ingress.tls | indent 4 }}
+    {{ toYaml .Values.ingress.tls | nindent 4 }}
   {{- end -}}
 {{- end -}}

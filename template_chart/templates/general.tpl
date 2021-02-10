@@ -48,3 +48,14 @@ Allow the release namespace to be overridden for multi-namespace deployments in 
     {{- .Release.Namespace -}}
   {{- end -}}
 {{- end -}}
+
+{{/*
+Che
+*/}}
+{{- define "ingress.enabled" -}}
+  {{- if .Values.ingress.enabled -}}
+    {{- .Values.ingress.enabled -}}
+  {{- else -}}
+    false
+  {{- end -}}
+{{- end -}}

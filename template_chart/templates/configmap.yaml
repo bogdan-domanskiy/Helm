@@ -8,23 +8,8 @@ metadata:
       {{ $key | nindent 4 }}: {{ $val | quote }}
     {{- end }}
 data: 
-  appsettings.json: {{ .Files.Get .Values.configmap.pathtofile | printf "%s" | nindent 4 }}
-
-    # appsettings.json: |-
-    #   {
-    #     "ConnectionStrings": {
-    #       "VbsDb": "Server=some-connection-string"
-    #     },
-    #     "Logging": {
-    #       "LogLevel": {
-    #         "Default": "Information",
-    #         "Microsoft": "Warning",
-    #         "Microsoft.Hosting.Lifetime": "Information"
-    #       }
-    #     },
-    #     "AllowedHosts": "*"
-    #   }
-
-
-#   log_level: INFO
-#   build_mode: Debug
+{{- if .Values.app_settings }}
+  {{ (.Values.configmap_internal_name_offile | default "appsettings.json") }}: {{ toJson .Values.app_settings | nindent 4 }}
+{{- else }}
+  fail "Please check the app_setting value that was put in."
+{{- end }}
