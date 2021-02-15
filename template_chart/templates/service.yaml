@@ -5,15 +5,20 @@ metadata:
   name: {{ .Values.generalInfo.name | default .Release.Name }}-svc
   namespace: {{ .Values.generalInfo.namespace | default "default" }}
   labels:
-    {{- range $key, $val := .Values.generalInfo.labels -}}
-      {{ $key | nindent 4}}: {{ $val | quote }}
+    {{- range $key, $value := .Values.generalInfo.labels -}}
+      {{ $key | nindent 4}}: {{ $value | quote }}
+    {{- end }}
+  annotations:
+    {{- range $key, $value := .Values.annotations -}}
+      {{ $key | nindent 4 }}: {{ $value | quote }}
     {{- end }}
 spec:
   selector: 
     name: {{ .Values.generalInfo.name | default .Release.Name }}-pod
-# What's the best practice of usage service type field? By default is the ClusterIP type
-  # externalName: my.database.example.com
-  type: {{ .Values.service.type }}
+  type: {{ .Values.service.type | default "ClusterIP" }}
+  {{- range $value := .Values.service.externalIPs}}
+    - {{ $value | quote }}
+  {{- end }}
   ports:
   {{- if $ports }}
     {{- range $ports }}
@@ -28,9 +33,12 @@ spec:
       targetPort: {{ $.Values.deployment.containerPort | default "80" }}
       protocol: TCP
   {{- end }}
-
-#   clusterIP:
-# status:
-#   loadBalancer:
-#     ingress:
-#     - ip: 192.0.2.127
+clusterIP: {{ .Values.service.clusterIP }}
+{{- if .Values.service.type }}
+{{- if and (eq .Values.service.type "LoadBalancer") .Values.service.ingress_ip }}
+status:
+  loadBalancer:
+    ingress:
+    - ip: {{ .Values.service.ingress_ip }}
+{{- end }}
+{{- end -}}

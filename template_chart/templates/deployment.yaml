@@ -12,11 +12,25 @@ spec:
   replicas: {{ .Values.deployment.replicas | default 1 }}
   revisionHistoryLimit: {{ .Values.deployment.historyLimit | default 10 }}
   selector:
-    matchLabels:  
+    matchLabels:
       name: {{ .Values.generalInfo.name | default .Release.Name }}-pod
+    {{- if .Values.deployment.matchExpressions }}
+    matchExpressions:
+    {{- toYaml .Values.deployment.matchExpressions | nindent 6 }}
+    {{- end }}
   strategy:
-  #  type: RollingUpdate (By default)
-    # type: Recreate
+  {{- if .Values.deployment.deploymentStrategy }}
+    {{- if eq .Values.deployment.deploymentStrategy "RollingUpdate" -}}
+    type: {{ .Values.deployment.deploymentStrategy }}
+    rollingUpdate:
+      maxSurge: {{ .Values.deployment.maxSurge | default 2 }}
+      maxUnavailable: {{ .Values.deployment.maxUnavailable | default 0 }}
+    {{- else }}
+    type: {{ .Values.deployment.deploymentStrategy }}
+    {{- end -}}
+  {{- else }}
+    type: RollingUpdate
+  {{- end }}
   template:
     metadata:
       name: {{ .Values.generalInfo.name | default .Release.Name }}-pod
@@ -24,8 +38,20 @@ spec:
       labels:
         name: {{ .Values.generalInfo.name | default .Release.Name }}-pod
     spec:
+      {{- if .Values.deployment.affinity -}}
       affinity:
-        {{- toYaml .Values.deployment.affinity | nindent 10 }}
+        {{- toYaml | nindent 10 }}
+      {{- end }}
+      {{- if .Values.deployment.schedulerName }}
+      schedulerName: {{ .Values.deployment.schedulerName }}
+      {{- end }}
+      {{- if .Values.deployment.priorityClassName }}
+      priorityClassName: {{ .Values.deployment.priorityClassName }}
+      {{- end }}
+      {{- if .Values.deployment.initContainers }}
+      initContainers: 
+        {{ toYaml .Values.deployment.initContainers | nindent 8}}
+      {{- end }}
       containers:
       - name: {{ .Values.generalInfo.name | default .Release.Name }}-pod
         image: {{ ( include "deploy.image-name" .) | quote }}
@@ -45,44 +71,20 @@ spec:
             protocol: TCP
         {{- end }}
 # define all of the ConfigMap's data as container environment variables
-        # envFrom:
-        #   - configMapRef:
-        #       name: {{ .Values.generalInfo.name }}-configmap
-        # env:
-        #   - name: GF_SECURITY_ADMIN_USER
-        #     valueFrom:
-        #       secretKeyRef:
-        #         name: grafana
-        #         key: admin-user
-        #   - name: GF_SECURITY_ADMIN_PASSWORD
-        #     valueFrom:s
-        #       secretKeyRef:
-        #         name: grafana
-        #         key: admin-password
-        # - name: GREETING
-        #   valueFrom:
-        #     configMapKeyRef:
-        #       name: demo-config
-        #       key: greeting
+        envFrom:
+          {{- toYaml .Values.deployment.envFrom | nindent 10 }}
+        env:
+          {{- toYaml .Values.deployment.env | nindent 10 }}
         livenessProbe:
           {{- toYaml .Values.deployment.livenessProbe | nindent 10 }}
         readinessProbe:
           {{- toYaml .Values.deployment.readinessProbe | nindent 10 }}
         resources:
-          requests:
-            {{- toYaml .Values.deployment.resources.requests | nindent 12 }}
-          limits:
-            {{- toYaml .Values.deployment.resources.limits | nindent 12 }}
+          {{- toYaml .Values.deployment.resources | nindent 10 }}
       tolerations:
         {{- toYaml .Values.deployment.tolerations | nindent 8 }}
       nodeSelector:
         {{- toYaml .Values.deployment.nodeSelector | nindent 8 }}
       volumes:
-        - name: test-volume
-          configMap:
-            name: {{ .Values.generalInfo.name }}-configmap
-    # - name: config
-    #   configMap:
-    #     name: grafana
-    # - name: storage
-    #   emptyDir: {}
+        {{- toYaml .Values.deployment.volumes | nindent 8 }}
+

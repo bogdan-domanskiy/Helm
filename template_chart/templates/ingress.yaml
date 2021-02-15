@@ -1,4 +1,4 @@
-{{- if eq ( .Values.ingressenabled | default "false" ) "true" }}
+{{- if .Values.ingress.enabled }}
 {{ $ports := .Values.service.ports }}
 {{ $host := .Values.ingress.hosts }}
 apiVersion: extensions/v1beta1
@@ -11,10 +11,16 @@ metadata:
       {{ $key | nindent 4 }}: {{ $val | quote }}
     {{- end }}
   annotations:
-    {{- range $key, $value := .Values.ingress.annotations -}}
+    {{- range $key, $value := .Values.annotations -}}
       {{ $key | nindent 4 }}: {{ $value | quote }}
     {{- end }}
 spec:
+  {{- if .Values.ingress.ingressClassName }}
+  ingressClassName: {{ .Values.ingress.ingressClassName }}
+  {{- end }}
+  {{- if .Values.ingress.tls }}
+  tls: {{ tpl (toYaml .Values.ingress.tls) $ | nindent 4 }}
+  {{- end }}
   rules:
   {{- if $host -}}
     {{- range $host }}

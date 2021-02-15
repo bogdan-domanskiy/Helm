@@ -5,7 +5,7 @@
 
 generalInfo:
   name: some-application
-  # namespace: application-namespace
+  namespace: application-namespace
   # labels: 
   #   app.kubernetes.io/name: some-application
   #   app.kubernetes.io/version: v1
@@ -13,64 +13,142 @@ generalInfo:
   #   app.kubernetes.io/managed-by: helm
 
 deployment:
-  replicas: 2
-  historyLimit: 11
+  # replicas: 2
+  # historyLimit: 11
   imageName: nginx
   imagerepository: docker.io
   imageTag: stable
-  containerPort:
-  # ports:
+  # initContainers:
+  # schedulerName: 
+  # priorityClassName:
+  # deploymentStrategy: Recreate
+  # maxSurge: 2
+  # maxUnavailable: 0
+
+  # containerPort:
+  # ports: []
   #   - name: HTTPS
   #     containerPort: 8080
   #     protocol: TCP
   #   - name: HTTP
   #     containerPort: 8081
   #     protocol: TCP
-  affinity: {}
-  tolerations: []
-  nodeSelector: {}
-  livenessProbe: 
-    failureThreshold: 10
-    httpGet:
-      path: /
-      port: 80
-    initialDelaySeconds: 60
-    timeoutSeconds: 30
-  readinessProbe:
-    httpGet:
-      path: /
-      port: 80
-  imagePullPolicy:
-  restartPolicy: "OnFailure"
-  volumeMounts: []
-  volume: {}
-  resources:
-    requests:
-      memory: "64Mi"
-      cpu: "250m"
-    limits:
-      memory: "128Mi"
-      cpu: "500m"
+  # matchExpressions: []
+    # - key: kubernetes.io/e2e-az-name
+    #   operator: In
+    #   values:
+    #   - e2e-az1
+    #   - e2e-az2
 
+# ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
+  # affinity: {}
+    # nodeAffinity:
+    #   requiredDuringSchedulingIgnoredDuringExecution:
+    #     nodeSelectorTerms:
+    #     - matchExpressions:
+    #       - key: kubernetes.io/e2e-az-name
+    #         operator: In
+    #         values:
+    #         - e2e-az1
+    #         - e2e-az2
+    #   preferredDuringSchedulingIgnoredDuringExecution:
+    #   - weight: 1
+    #     preference:
+    #       matchExpressions:
+    #       - key: another-node-label-key
+    #         operator: In
+    #         values:
+    #         - another-node-label-value
+  # nodeSelector: {}
+  #   <label-key>=<label-value>
+  # tolerations: []
+  #   ref: https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/
+    # - key: "key1"
+    #   operator: "Equal" or "Exists"
+    #   value: "value1"
+    #   effect: "NoSchedule"
+  # livenessProbe: {}
+    # failureThreshold: 10
+    # httpGet:
+    #   path: /
+    #   port: 80
+    # initialDelaySeconds: 60
+    # timeoutSeconds: 30
+  # readinessProbe: {}
+    # httpGet:
+    #   path: /
+    #   port: 80
+  # imagePullPolicy:
+  # restartPolicy: "OnFailure"
+  # volumeMounts: []
+    # ref: https://kubernetes.io/docs/concepts/storage/volumes/
+  # volumes: []
+    # - name: test-volume
+    # configMap:
+    #   name: {{ .Values.generalInfo.name }}-configmap
+    # - name: config
+    #   configMap:
+    #     name: grafana
+    # - name: storage
+    #   emptyDir: {}
+  # resources: {}
+    # requests:
+    #   memory: "64Mi"
+    #   cpu: "250m"
+    # limits:
+    #   memory: "128Mi"
+    #   cpu: "500m"
+  # envFrom: []
+    # - configMapRef:
+    #   name: some-configmap-name
+  # env: []
+    # - name: GF_SECURITY_ADMIN_USER
+    #   valueFrom:
+    #     secretKeyRef:
+    #       name: grafana
+    #       key: admin-user
+    # - name: GF_SECURITY_ADMIN_PASSWORD
+    #   valueFrom: 
+    #     secretKeyRef:
+    #       name: grafana
+    #       key: admin-password
+    # - name: GREETING
+    #   valueFrom:
+    #     configMapKeyRef:
+    #       name: demo-config
+    #       key: greeting
 
-service:
-  # type: NodePort
+service: {}
+# https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+  # type: NodePort 
   # externalPort: 80
-  ports: []
-    # - name: some-application-1
-    #   port: 83
-    #   targetPort: 80
-    #   protocol: TCP
-    # - name: some-application-2
-    #   port: 84
-    #   targetPort: 80
-    #   protocol: TCP
+  # clusterIP: 10.0.171.239
+  # externalIPs: []
+  #  - 192.0.2.127
+  #  - 192.0.2.122
+  #  - 192.0.2.125
+  # ingress_ip: 192.0.2.127
+  # ports: []
+  # - name: some-application-1
+  #   port: 83
+  #   targetPort: 80
+  #   protocol: TCP
+  # - name: some-application-2
+  #   port: 84
+  #   targetPort: 80
+  #   protocol: TCP
 
 # ingressenabled:
-# ingress: 
+ingress: 
+  enabled: true
+  # ingressClassName: nginx
 #   path: /page1
-#   # domain: localhost
-#   hosts: []
+  domain: localhost
+  # tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - example.local
+  # hosts: []
     # - host: example.local
       # paths: 
       #   - path: /page1
@@ -87,16 +165,18 @@ service:
       #         port:
       #           name: http
       #           number: 84
-  # annotations:
-  #   kubernetes.io/ingress.class: nginx
-  #   app.kubernetes.io/service-name: some-getaway
-  #   app.kubernetes.io/version: v1
-  #   app.kubernetes.io/env: dev
-  #   app.kubernetes.io/managed-by: azure
   # tls: []
 
-# configmap_internal_name_offile: dev-appsettings.json
-# configmap:
+annotations:
+  kubernetes.io/ingress.class: nginx
+  app.kubernetes.io/service-name: some-getaway
+  app.kubernetes.io/version: v1
+  app.kubernetes.io/env: dev
+  app.kubernetes.io/managed-by: azure
+
+configmap: {}
+  # internal_file_name: dev-appsettings.json
+  # internal_file: appsettings.dev.json
 #   name: some-application-configmap
 #   pathtoforlder: ./template_chart/
   # data: |-
