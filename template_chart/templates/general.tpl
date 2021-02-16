@@ -25,15 +25,3 @@ Create a default fully qualified app name.
     {{ (include "deploy.image-and-repo" .) }}
   {{- end -}}
 {{- end -}}
-
-
-{{/*
-Set a default version of app.
-*/}}
-{{- define "app.version" -}}
-  {{- if .Values.Version -}}
-    {{- .Values.Version -}}
-  {{- else -}}
-    {{- .Chart.Version .Release.Revision -}}
-  {{- end -}}
-{{- end -}}

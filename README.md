@@ -1,9 +1,22 @@
 # Helm
-This repository is using for creating a general Helm template that can be used for any applications.
+This repository uses for creating a general Helm template that can be used for any applications.
 
 ## A little description of current infrastructure.
 
-The mandatory field is `.generalInfo.name`, otherwise will be used the `.Release.Name` everywhere that it needs.
+The field `.deployment.imageName` is binding. For the name will be able to use the `.Release.Name` as prefix everywhere that it needs, in the case if the '.generalInfo.name' is absent.
+
+The value file has to contain the below general fields for correct work of chart by default:
+‘generalInfo: {}
+ 
+deployment:
+  imageName: nginx
+ 
+service: {}
+ 
+ingress: {}
+ 
+configmap: {}‘
+
 
 ### Deployment
 
@@ -12,6 +25,7 @@ Currently, the `deployment.yaml` file is taking the provided value from the `val
 ### Service
 
 Actually `service.yaml` has the condition to get a map from the `.Values.service.ports` else will be used default options for including a result of deployment creation.
+Pay attention to the fields which you are indicating in the `.Values.service.ports `. If they are present the indicated lines provide without any changes.
 
 ### Ingress
 
@@ -29,3 +43,6 @@ Configmap expects to receive the value from your configuration file, for example
 “Please check the app_setting value that was put in.”
 
 The default name of the file in configmap is `appsettings.json`. You have to set the value for the `configmap_internal_name_offile` in the value file if you want to change the file name.
+
+Path to file is able to indicate the file name that will be geted by configmap. 
+If you have to indicate the full path using the folder's names - please use the set-file option.

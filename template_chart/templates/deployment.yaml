@@ -19,7 +19,7 @@ spec:
     {{- end }}
   strategy:
   {{- if .Values.deployment.deploymentStrategy }}
-    {{- if eq .Values.deployment.deploymentStrategy "RollingUpdate" -}}
+    {{- if and .Values.deployment.maxSurge .Values.deployment.maxUnavailable (eq .Values.deployment.deploymentStrategy "RollingUpdate") -}}
     type: {{ .Values.deployment.deploymentStrategy }}
     rollingUpdate:
       maxSurge: {{ .Values.deployment.maxSurge | default 2 }}

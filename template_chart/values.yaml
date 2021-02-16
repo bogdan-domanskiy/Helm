@@ -1,8 +1,3 @@
-#name: ""
-#Version: ""
-#replicaCount: 2
-#namespaceOverride: aslkdjasdvc
-
 generalInfo:
   name: some-application
   # labels: 
@@ -10,6 +5,13 @@ generalInfo:
   #   app.kubernetes.io/version: v1
   #   app.kubernetes.io/env: dev
   #   app.kubernetes.io/managed-by: helm
+
+annotations:
+  kubernetes.io/ingress.class: nginx
+  app.kubernetes.io/service-name: some-getaway
+  app.kubernetes.io/version: v1
+  app.kubernetes.io/env: dev
+  app.kubernetes.io/managed-by: azure
 
 deployment:
   # replicas: 2
@@ -173,16 +175,11 @@ ingress:
       #           number: 84
   # tls: []
 
-annotations:
-  kubernetes.io/ingress.class: nginx
-  app.kubernetes.io/service-name: some-getaway
-  app.kubernetes.io/version: v1
-  app.kubernetes.io/env: dev
-  app.kubernetes.io/managed-by: azure
-
 configmap: {}
   # internal_file_name: appsettings.dev.json
-  # internal_file: appsettings.dev.json
+  # Path to file is able to indicate the file name that will be geted by configmap. 
+  # If you have to indicate the full path using the folder's names - please use the set-file option.
+  # path_to_file: appsettings.dev.json
 #   name: some-application-configmap
 #   pathtoforlder: ./template_chart/
   # data: |-
