@@ -5,7 +5,6 @@
 
 generalInfo:
   name: some-application
-  namespace: application-namespace
   # labels: 
   #   app.kubernetes.io/name: some-application
   #   app.kubernetes.io/version: v1
@@ -118,17 +117,24 @@ deployment:
     #       name: demo-config
     #       key: greeting
 
-service: {}
+service: 
 # https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
   # type: NodePort 
   # externalPort: 80
   # clusterIP: 10.0.171.239
-  # externalIPs: []
+  # externalName: my.database.example.com
+  externalIPs: []
   #  - 192.0.2.127
   #  - 192.0.2.122
   #  - 192.0.2.125
   # ingress_ip: 192.0.2.127
-  # ports: []
+  ports: []
+  # - name: some-application-1
+  #   port: 83
+  #   targetPort: 80
+      # Optional field
+      # By default and for convenience, the Kubernetes control plane will allocate a port from a range (default: 30000-32767)
+  #   nodePort: 30007
   # - name: some-application-1
   #   port: 83
   #   targetPort: 80
@@ -175,7 +181,7 @@ annotations:
   app.kubernetes.io/managed-by: azure
 
 configmap: {}
-  # internal_file_name: dev-appsettings.json
+  # internal_file_name: appsettings.dev.json
   # internal_file: appsettings.dev.json
 #   name: some-application-configmap
 #   pathtoforlder: ./template_chart/

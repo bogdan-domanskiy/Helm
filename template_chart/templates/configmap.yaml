@@ -2,7 +2,6 @@ kind: ConfigMap
 apiVersion: v1
 metadata:
   name: {{ .Values.generalInfo.name }}-configmap
-  namespace: {{ .Values.generalInfo.namespace | default "default" }}
   labels:
     {{- range $key, $val := .Values.generalInfo.labels -}}
       {{ $key | nindent 4 }}: {{ $val | quote }}
@@ -11,7 +10,8 @@ data:
 {{- if .Values.app_settings }}
   {{ (.Values.configmap.internal_file_name | default "appsettings.json") }}: {{ toJson .Values.app_settings | nindent 4 }}
 {{- else if .Values.configmap.internal_file }}
-  {{- (.Values.configmap.internal_file_name | default "appsettings.json") }}: {{ .Files.Get .Values.configmap.internal_file | nindent 4 }}
+  {{ (.Values.configmap.internal_file_name | default "appsettings.json") }}: |-
+  {{- .Files.Get .Values.configmap.internal_file | nindent 4 }}
 {{- else }}
   fail "Please check the app_setting value that was put in."
 {{- end }}

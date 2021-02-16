@@ -5,7 +5,6 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ $.Values.generalInfo.name | default $.Release.Name }}-ingress
-  namespace: {{ .Values.generalInfo.namespace | default "default" }}
   labels:
     {{- range $key, $val := .Values.generalInfo.labels -}}
       {{ $key | nindent 4 }}: {{ $val | quote }}

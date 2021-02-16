@@ -3,7 +3,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata: 
   name: {{ .Values.generalInfo.name | default .Release.Name }}-deployment
-  namespace: {{ .Values.generalInfo.namespace | default "default" }}
   labels:
     {{- range $key, $val := .Values.generalInfo.labels -}}
       {{- $key | nindent 4 }}: {{ $val | quote }}
